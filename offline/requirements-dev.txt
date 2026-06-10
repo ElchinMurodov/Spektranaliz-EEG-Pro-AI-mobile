@@ -1,0 +1,10 @@
+# Spektranaliz EEG Pro AI — OFLAYN (Kivy) ilovasini ish stolida SINASH uchun.
+# Mobil yig'ish requirements buildozer.spec ichida (Android) yoki kivy-ios (iOS) da.
+
+# Ish stolida ishga tushirish: pip install -r requirements-dev.txt && python main.py
+kivy>=2.2.0
+plyer>=2.1.0   # mobil tizim fayl tanlagichi (ish stolida ixtiyoriy)
+
+# Ixtiyoriy tezlashtirish (eeg_engine ularsiz ham ishlaydi):
+# numpy
+# scipy

@@ -47,3 +47,13 @@ mobile/ios/Runner/GeneratedPluginRegistrant.*
 *.iml
 .DS_Store
 Thumbs.db
+
+
+# --- Kivy / Buildozer oflayn ilova ---
+offline/.buildozer/
+offline/bin/
+offline/.venv/
+offline/*-ios/
+*.apk
+*.aab
+*.ipa
