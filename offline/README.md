@@ -65,6 +65,27 @@ APK ni telefonga o'tkazib o'rnating. Birinchi yig'ish uzoq davom etadi
 > sof Python bo'lgani uchun `numpy/scipy` **shart emas** — bu yig'ishni yengil va
 > ishonchli qiladi. Tezlik kerak bo'lsa `numpy` ni qo'shing.
 
+## 2b. ⭐ Avtomatik .apk — GitHub Actions (kompyuterga hech narsa o'rnatmasdan)
+
+Repozitoriyda `.github/workflows/build-apk.yml` workflow'i bor. U `.apk` ni
+**GitHub serverlarida avtomatik yig'adi** — sizning kompyuteringizda Buildozer,
+Android SDK/NDK o'rnatish shart emas.
+
+**Qanday ishlatish:**
+1. GitHub'da repozitoriyning **Actions** bo'limiga o'ting.
+2. **"Build Android APK (offline)"** workflow'ini tanlang → **Run workflow**
+   (yoki `offline/` papkasiga har qanday o'zgarish `main` ga push qilinsa, o'zi ishga tushadi).
+3. Yig'ish tugagach (~15-30 daqiqa), o'sha ish sahifasining pastidagi
+   **Artifacts → `Spektranaliz-EEG-Pro-AI-apk`** ni yuklab oling. Ichida `.apk` bor.
+4. `.apk` ni Android telefoniga o'tkazib o'rnating ("Noma'lum manbalar" ruxsatini yoqing).
+
+**Reliz (Release) bilan:** `v` bilan boshlanadigan teg push qilsangiz (masalan
+`v3.0.0`), `.apk` avtomatik **GitHub Release** ga biriktiriladi:
+```bash
+git tag v3.0.0
+git push origin v3.0.0
+```
+
 ## 3. iOS (.ipa) — kivy-ios
 
 iOS faqat **macOS + Xcode** da yig'iladi.
