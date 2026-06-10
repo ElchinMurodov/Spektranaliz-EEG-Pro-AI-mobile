@@ -2,9 +2,15 @@ name: Build Android APK (offline)
 
 # Oflayn (Kivy) ilovaning .apk faylini GitHub serverlarida avtomatik yig'adi.
 # Ishga tushadi:
-#   - main ga offline/ o'zgarsa
+#   - main ga offline/ yoki workflow o'zgarsa
 #   - "Actions" sahifasidan qo'lda (workflow_dispatch)
-#   - v* ko'rinishidagi teg (masalan v3.0.0) push qilinganda -> Release ga apk biriktiriladi
+#   - v* ko'rinishidagi teg (masalan v3.0.0) push qilinganda
+#
+# Natija:
+#   - .apk har doim "Artifacts" sifatida yuklanadi
+#   - .apk avtomatik "Releases" sahifasiga ham joylanadi:
+#       * oddiy build  -> "android-latest" (oldindan-reliz, doimiy havola)
+#       * v* teg        -> o'sha teg nomidagi rasmiy reliz
 on:
   push:
     branches: [ main ]
@@ -14,6 +20,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+
+# Release yaratish/yuklash uchun GITHUB_TOKEN ga yozish huquqi kerak
+permissions:
+  contents: write
 
 jobs:
   build-android:
@@ -40,10 +50,16 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # Teg (v*) push qilinganda .apk ni GitHub Release ga biriktiramiz
-      - name: Release ga biriktirish (faqat teg uchun)
-        if: startsWith(github.ref, 'refs/tags/v')
+      # .apk ni "Releases" sahifasiga joylash (yuklab olish uchun barqaror havola)
+      - name: APK ni Release ga joylash
         uses: softprops/action-gh-release@v2
         with:
+          # v* teg bo'lsa -> o'sha teg; aks holda -> "android-latest" (rolling)
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'android-latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'Android APK (oxirgi build)' }}
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+          body: |
+            Spektranaliz EEG Pro AI — oflayn Android ilovasi (.apk).
+            Bu fayl GitHub Actions tomonidan avtomatik yig'ilgan (debug build).
+            Telefonga o'rnatish uchun "Noma'lum manbalardan o'rnatish" ruxsatini yoqing.
           files: offline/bin/*.apk
-          generate_release_notes: true
