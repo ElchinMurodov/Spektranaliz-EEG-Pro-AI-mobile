@@ -1,0 +1,32 @@
+name: spektranaliz_eeg_pro_ai
+description: "Sportchining EEG signallarini spektral tahlil qilish — mobil ilova (Android/iOS)."
+publish_to: 'none'
+version: 3.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Server bilan HTTP aloqasi (fayl yuklash, JSON natija)
+  http: ^1.2.0
+
+  # Qurilmadan EEG fayl (EDF/BDF/CSV) tanlash
+  file_picker: ^8.0.0
+
+  # Diagrammalar (ritm ustunlari, PSD egri chizig'i)
+  fl_chart: ^0.68.0
+
+  # Server manzili kabi sozlamalarni saqlash
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

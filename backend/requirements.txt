@@ -1,0 +1,17 @@
+# Spektranaliz EEG Pro AI — mobil backend (FastAPI) kutubxonalari
+# O'rnatish: pip install -r requirements.txt
+
+# --- Web server / API ---
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9   # fayl yuklash (multipart/form-data) uchun
+
+# --- Tahlil yadrosini tezlashtirish (ixtiyoriy, lekin tavsiya etiladi) ---
+# eeg_engine SOF PYTHON da ishlaydi; quyidagilar tezlik va EDF/BDF o'qishni
+# mustahkamlaydi.
+numpy
+scipy
+pyedflib
+
+# --- HTML hisobotdagi SVG ni rasterlash (ixtiyoriy) ---
+# pillow
