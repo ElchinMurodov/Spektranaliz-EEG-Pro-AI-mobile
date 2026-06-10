@@ -1,16 +1,17 @@
 name: Build Android APK (offline)
 
 # Oflayn (Kivy) ilovaning .apk faylini GitHub serverlarida avtomatik yig'adi.
-# Ishga tushadi:
-#   - main ga offline/ yoki workflow o'zgarsa
-#   - "Actions" sahifasidan qo'lda (workflow_dispatch)
-#   - v* ko'rinishidagi teg (masalan v3.0.0) push qilinganda
+#
+# MUHIM: Eski "ArtemSBulgakov/buildozer-action" tashlandi — u o'z Docker image'ini
+# qurishda muvaffaqiyatsiz tugar edi ("Docker build failed"). Endi Buildozer
+# to'g'ridan-to'g'ri ubuntu-22.04 da, Kivy hujjatlari tavsiya etgan usulda
+# ishga tushiriladi (ishonchli).
 #
 # Natija:
 #   - .apk har doim "Artifacts" sifatida yuklanadi
-#   - .apk avtomatik "Releases" sahifasiga ham joylanadi:
-#       * oddiy build  -> "android-latest" (oldindan-reliz, doimiy havola)
-#       * v* teg        -> o'sha teg nomidagi rasmiy reliz
+#   - .apk "Releases" sahifasiga ham joylanadi:
+#       * oddiy build -> "android-latest" (oldindan-reliz, doimiy havola)
+#       * v* teg       -> o'sha teg nomidagi rasmiy reliz
 on:
   push:
     branches: [ main ]
@@ -21,26 +22,59 @@ on:
       - 'v*'
   workflow_dispatch:
 
-# Release yaratish/yuklash uchun GITHUB_TOKEN ga yozish huquqi kerak
 permissions:
   contents: write
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
 
     steps:
       - name: Repozitoriyni olish
         uses: actions/checkout@v4
 
-      - name: Buildozer bilan .apk yig'ish
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      - name: Python 3.11 o'rnatish
+        uses: actions/setup-python@v5
         with:
-          command: buildozer android debug
-          workdir: offline
-          buildozer_version: stable
+          python-version: '3.11'
+
+      - name: JDK 17 o'rnatish
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Tizim kutubxonalari (Buildozer/p4a uchun)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            git zip unzip autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
+            cmake libffi-dev libssl-dev build-essential ccache
+
+      - name: Buildozer + Cython o'rnatish
+        run: |
+          python -m pip install --upgrade pip wheel setuptools
+          # Cython 0.29.x — p4a/kivy recipe'lari bilan eng barqaror kombinatsiya
+          pip install "Cython==0.29.36" buildozer
+
+      - name: Buildozer keshi (SDK/NDK qayta yuklamaslik uchun)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            offline/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('offline/buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: APK yig'ish (buildozer android debug)
+        working-directory: offline
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          # 'yes |' — har qanday litsenziya/interaktiv so'rovlarni avtomatik tasdiqlaydi
+          yes | buildozer -v android debug
 
       - name: APK ni artefakt sifatida yuklash
         uses: actions/upload-artifact@v4
@@ -50,11 +84,9 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # .apk ni "Releases" sahifasiga joylash (yuklab olish uchun barqaror havola)
       - name: APK ni Release ga joylash
         uses: softprops/action-gh-release@v2
         with:
-          # v* teg bo'lsa -> o'sha teg; aks holda -> "android-latest" (rolling)
           tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'android-latest' }}
           name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'Android APK (oxirgi build)' }}
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
