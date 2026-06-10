@@ -1,0 +1,49 @@
+name: Build Android APK (offline)
+
+# Oflayn (Kivy) ilovaning .apk faylini GitHub serverlarida avtomatik yig'adi.
+# Ishga tushadi:
+#   - main ga offline/ o'zgarsa
+#   - "Actions" sahifasidan qo'lda (workflow_dispatch)
+#   - v* ko'rinishidagi teg (masalan v3.0.0) push qilinganda -> Release ga apk biriktiriladi
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'offline/**'
+      - '.github/workflows/build-apk.yml'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Repozitoriyni olish
+        uses: actions/checkout@v4
+
+      - name: Buildozer bilan .apk yig'ish
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: buildozer android debug
+          workdir: offline
+          buildozer_version: stable
+
+      - name: APK ni artefakt sifatida yuklash
+        uses: actions/upload-artifact@v4
+        with:
+          name: Spektranaliz-EEG-Pro-AI-apk
+          path: offline/bin/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      # Teg (v*) push qilinganda .apk ni GitHub Release ga biriktiramiz
+      - name: Release ga biriktirish (faqat teg uchun)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: offline/bin/*.apk
+          generate_release_notes: true
