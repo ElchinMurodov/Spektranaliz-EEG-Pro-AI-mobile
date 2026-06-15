@@ -29,9 +29,10 @@ android.minapi = 24
 android.archs = arm64-v8a, armeabi-v7a
 android.allow_backup = 1
 
-# Ikona (mavjud bo'lsa)
-# icon.filename = %(source.dir)s/icon.png
-# presplash.filename = %(source.dir)s/presplash.png
+# Ikona va boshlang'ich ekran (presplash) — ish stoli dasturi grafikasi
+icon.filename = %(source.dir)s/icon.png
+presplash.filename = %(source.dir)s/presplash.png
+android.presplash_color = #1B3A6B
 
 [buildozer]
 

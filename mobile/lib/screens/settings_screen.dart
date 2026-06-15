@@ -4,6 +4,7 @@ import '../config/app_config.dart';
 import '../services/api_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_background.dart';
 
 /// Server manzilini sozlash va ulanishni tekshirish ekrani.
 class SettingsScreen extends StatefulWidget {
@@ -64,10 +65,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text('Sozlamalar')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: AppBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           const Text(
             'Backend server manzili',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -151,6 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

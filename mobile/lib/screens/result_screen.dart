@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/analysis_result.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_background.dart';
 import '../widgets/band_bar_chart.dart';
 import '../widgets/psd_chart.dart';
 import '../widgets/state_probability_list.dart';
@@ -18,6 +19,7 @@ class ResultScreen extends StatelessWidget {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: const Text('Tahlil natijasi'),
           bottom: const TabBar(
@@ -31,13 +33,15 @@ class ResultScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            _OverviewTab(result: result),
-            _BandsTab(result: result),
-            _SpectrumTab(result: result),
-            _ReportTab(result: result),
-          ],
+        body: AppBackground(
+          child: TabBarView(
+            children: [
+              _OverviewTab(result: result),
+              _BandsTab(result: result),
+              _SpectrumTab(result: result),
+              _ReportTab(result: result),
+            ],
+          ),
         ),
       ),
     );
