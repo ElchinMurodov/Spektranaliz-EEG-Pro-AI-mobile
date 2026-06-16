@@ -28,5 +28,27 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.0
 
+  # Ilova ishga tushiruvchi ikonkasini (launcher icon) generatsiya qilish
+  flutter_launcher_icons: ^0.13.1
+
 flutter:
   uses-material-design: true
+
+  # Fon, logotip va ikonka rasmlari (ish stoli dasturi bilan bir xil dizayn)
+  assets:
+    - assets/images/logo.png
+    - assets/images/logo_dark.png
+    - assets/images/icon.png
+    - assets/images/background.jpg
+
+# Android/iOS ilova ikonkasi (ish stoli dasturi ikonkasidan).
+# Generatsiya qilish:  flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png"
+  min_sdk_android: 24
+  remove_alpha_ios: true
+  # Android 8+ adaptiv ikonka (chuqur ko'k fon + logo emblema)
+  adaptive_icon_background: "#1B3A6B"
+  adaptive_icon_foreground: "assets/images/icon.png"

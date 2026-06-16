@@ -14,6 +14,7 @@ Android (.apk) / iOS uchun yig'ish: README.md ga qarang.
 
 from __future__ import annotations
 
+import os
 import threading
 import traceback
 
@@ -25,6 +26,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import Image as KivyImage
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
@@ -42,6 +44,13 @@ INK = get_color_from_hex("#1A2230")
 MUTED = get_color_from_hex("#6B7280")
 
 ALLOWED = (".edf", ".bdf", ".csv")
+
+# --- grafik resurslar (ish stoli dasturi bilan bir xil dizayn) ---
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+LOGO_PATH = os.path.join(ASSETS, "logo.png")
+LOGO_DARK_PATH = os.path.join(ASSETS, "logo_dark.png")
+ICON_PATH = os.path.join(ASSETS, "icon.png")
+BACKGROUND_PATH = os.path.join(ASSETS, "background.jpg")
 
 
 def confidence_color(c: float):
@@ -65,6 +74,29 @@ def _bg(widget, rgba):
 
     widget.bind(pos=_update, size=_update)
     return rect
+
+
+def _bg_image(widget, source, overlay=(1, 1, 1, 0.86)):
+    """Vidjet ortiga EEG-spektr fonini joylaydi va ustiga yengil oqartiruvchi
+    qatlam qo'yadi (kontent o'qilishi uchun). Ish stoli dasturidagi fon dizayni."""
+    from kivy.graphics import Color, Rectangle
+    if not os.path.exists(source):
+        # Fon rasmi topilmasa — oddiy tekis rangga qaytamiz
+        return _bg(widget, BG)
+    with widget.canvas.before:
+        Color(1, 1, 1, 1)
+        img_rect = Rectangle(source=source, pos=widget.pos, size=widget.size)
+        Color(*overlay)
+        ov_rect = Rectangle(pos=widget.pos, size=widget.size)
+
+    def _update(*_):
+        img_rect.pos = widget.pos
+        img_rect.size = widget.size
+        ov_rect.pos = widget.pos
+        ov_rect.size = widget.size
+
+    widget.bind(pos=_update, size=_update)
+    return img_rect
 
 
 class Card(BoxLayout):
@@ -95,6 +127,8 @@ def info_row(label: str, value: str) -> BoxLayout:
 
 class SpektranalizApp(App):
     title = "Spektranaliz EEG Pro AI"
+    # Ilova/oyna ikonkasi (ish stoli dasturi ikonkasi bilan bir xil)
+    icon = ICON_PATH
 
     def build(self):
         Window.clearcolor = BG
@@ -102,13 +136,23 @@ class SpektranalizApp(App):
         self.selected_name = None
 
         root = BoxLayout(orientation="vertical")
+        # EEG-spektr foni (ish stoli dasturidagidek), ustida yengil oqartiruvchi qatlam
+        _bg_image(root, BACKGROUND_PATH)
 
-        # --- yuqori panel (AppBar) ---
-        bar = BoxLayout(size_hint_y=None, height=dp(56), padding=(dp(16), 0))
+        # --- yuqori panel (AppBar): logotip + nom ---
+        bar = BoxLayout(size_hint_y=None, height=dp(56), padding=(dp(12), dp(6)),
+                        spacing=dp(10))
         _bg(bar, PRIMARY)
-        bar.add_widget(Label(text="[b]Spektranaliz EEG Pro AI[/b]", markup=True,
-                             color=(1, 1, 1, 1), font_size="18sp", halign="left",
-                             valign="middle"))
+        if os.path.exists(LOGO_DARK_PATH):
+            bar.add_widget(KivyImage(source=LOGO_DARK_PATH, size_hint_x=None,
+                                     width=dp(132), allow_stretch=True,
+                                     keep_ratio=True))
+        else:
+            bar.add_widget(Label(text="[b]Spektranaliz EEG Pro AI[/b]",
+                                 markup=True, color=(1, 1, 1, 1),
+                                 font_size="18sp", halign="left",
+                                 valign="middle"))
+        bar.add_widget(Label())  # bo'sh joy (logotipни chapga suradi)
         root.add_widget(bar)
 
         # --- asosiy kontent (ScrollView) ---
@@ -128,6 +172,11 @@ class SpektranalizApp(App):
         self.container.clear_widgets()
 
         intro = Card()
+        # Logotip (ish stoli dasturi bilan bir xil) — oq karta ustida
+        if os.path.exists(LOGO_PATH):
+            intro.add_widget(KivyImage(source=LOGO_PATH, size_hint_y=None,
+                                       height=dp(72), allow_stretch=True,
+                                       keep_ratio=True))
         intro.add_widget(Label(
             text="Sportchining EEG signallarini spektral tahlil qilish",
             color=INK, font_size="16sp", bold=True, halign="center",

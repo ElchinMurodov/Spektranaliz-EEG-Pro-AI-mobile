@@ -5,6 +5,7 @@ import '../config/app_config.dart';
 import '../services/api_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_background.dart';
 import 'result_screen.dart';
 import 'settings_screen.dart';
 
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(AppConfig.appName),
         actions: [
@@ -91,30 +93,32 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _header(),
-          const SizedBox(height: 20),
-          _filePickerCard(),
-          const SizedBox(height: 16),
-          _optionsCard(),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: (_picked == null || _loading) ? null : _analyze,
-            icon: _loading
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : const Icon(Icons.analytics_outlined),
-            label: Text(_loading ? 'Tahlil qilinmoqda...' : 'Natijani olish'),
-          ),
-          const SizedBox(height: 24),
-          _disclaimer(),
-        ],
+      body: AppBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _header(),
+            const SizedBox(height: 20),
+            _filePickerCard(),
+            const SizedBox(height: 16),
+            _optionsCard(),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: (_picked == null || _loading) ? null : _analyze,
+              icon: _loading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.analytics_outlined),
+              label: Text(_loading ? 'Tahlil qilinmoqda...' : 'Natijani olish'),
+            ),
+            const SizedBox(height: 24),
+            _disclaimer(),
+          ],
+        ),
       ),
     );
   }
@@ -122,14 +126,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _header() {
     return Column(
       children: [
+        // Ish stoli dasturi bilan bir xil logotip
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.white.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.monitor_heart_outlined,
-              color: Colors.white, size: 48),
+          child: Image.asset(
+            'assets/images/logo.png',
+            height: 64,
+            fit: BoxFit.contain,
+            // Logo yuklanmasa, eski belgicha ko'rinadi
+            errorBuilder: (_, __, ___) => const Icon(
+                Icons.monitor_heart_outlined,
+                color: AppTheme.primary,
+                size: 48),
+          ),
         ),
         const SizedBox(height: 14),
         const Text(
